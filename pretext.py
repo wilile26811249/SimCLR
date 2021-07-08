@@ -47,7 +47,7 @@ def train(net, dataloader, optimizer, scheduler, device, epoch):
         total_loss += loss.item() * batch_size
         train_bar.set_description(f'Train Epoch: [{epoch}/{epochs}] Loss: {total_loss / total_num}')
     scheduler.step()
-    writer.add_scalar("train/Loss", train_loss / total_num, epoch)
+    writer.add_scalar("train/Loss", total_loss / total_num, epoch)
     return total_loss / total_num
 
 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
                         help = 'Input batch size for training (default: 512)')
     parser.add_argument('--epochs', default = 500, type = int,
                         help = 'Number of epochs to train (default: 500)')
-    parser.add_argument("--gpu_devices", type = int, nargs='+', default = 1,
+    parser.add_argument("--gpu_device", type = int, default = 0,
                         help = "Select specific GPU to run the model")
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help = 'Random seed (default: 1)')
@@ -76,9 +76,8 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
 
     # Select the device to train
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    # gpu_devices = ','.join([str(id) for id in args.gpu_devices])
-    # os.environ["CUDA_VISIBLE_DEVICES"] = gpu_devices
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_device)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
     # Prepare data
@@ -103,9 +102,10 @@ if __name__ == '__main__':
 
     # Model and Optimizer setup
     model = ResNetSimCLR(represent_dim)
+    model.to(device)
+
     optimizer = optim.Adam(model.parameters(), lr = 1e-3, weight_decay = 1e-5)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 1)
 
     for epoch in range(1, epochs + 1):
         train_loss = train(model, train_dataloader, optimizer, scheduler, device, epoch)
-
