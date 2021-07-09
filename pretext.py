@@ -57,8 +57,6 @@ if __name__ == '__main__':
                         help = 'Feature dim for latent vector')
     parser.add_argument('--temperature', default = 0.5, type = float,
                         help = 'Temperature used in softmax')
-    parser.add_argument('--k', default = 200, type = int,
-                        help = 'Top k most similar images used to predict the label')
     parser.add_argument('--batch_size', default = 512, type = int,
                         help = 'Input batch size for training (default: 512)')
     parser.add_argument('--epochs', default = 500, type = int,
@@ -107,5 +105,8 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr = 1e-3, weight_decay = 1e-5)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 1)
 
+
+    results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [],
+               'test_loss': [], 'test_acc@1': [], 'test_acc@5': []}
     for epoch in range(1, epochs + 1):
         train_loss = train(model, train_dataloader, optimizer, scheduler, device, epoch)
