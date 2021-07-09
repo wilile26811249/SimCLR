@@ -14,7 +14,7 @@ from model import ResNetSimCLR
 
 writer = SummaryWriter()
 
-def train(net, dataloader, optimizer, scheduler, device, epoch):
+def train(net, dataloader, optimizer, device, epoch):
     net.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(dataloader)
     for aug_1, aug_2, target in train_bar:
@@ -102,11 +102,9 @@ if __name__ == '__main__':
     model = ResNetSimCLR(represent_dim)
     model.to(device)
 
-    optimizer = optim.Adam(model.parameters(), lr = 1e-3, weight_decay = 1e-5)
+    optimizer = optim.SGD(model.parameters(), lr = 0.05, momentum = 0.999, weight_decay = 1e-4)
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 1)
 
 
-    results = {'train_loss': [], 'train_acc@1': [], 'train_acc@5': [],
-               'test_loss': [], 'test_acc@1': [], 'test_acc@5': []}
     for epoch in range(1, epochs + 1):
         train_loss = train(model, train_dataloader, optimizer, scheduler, device, epoch)

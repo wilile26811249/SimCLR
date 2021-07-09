@@ -116,7 +116,7 @@ if __name__ == '__main__':
         param.requires_grad = False
 
 
-    optimizer = optim.Adam(model.classifier.parameters(), lr = 1e-3, weight_decay = 1e-6)
+    optimizer = optim.SGD(model.parameters(), lr = 0.05, momentum = 0.999, weight_decay = 1e-4)
     loss_criterion = nn.CrossEntropyLoss()
 
     best_acc = 0.0
