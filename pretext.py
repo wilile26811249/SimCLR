@@ -14,13 +14,11 @@ from model import ResNetSimCLR
 
 writer = SummaryWriter()
 
-def train(net, dataloader, optimizer, device, epoch):
+def train(net, dataloader, optimizer, scheduler, device, epoch):
     net.train()
     total_loss, total_num, train_bar = 0.0, 0, tqdm(dataloader)
     for aug_1, aug_2, target in train_bar:
-        if device == 'cuda:0':
-            aug_1, aug_2 = aug_1.cuda(non_blocking = True), aug_2.cuda(non_blocking = True)
-
+        aug_1, aug_2 = aug_1.to(device), aug_2.to(device)
         feature_1, out_1 = net(aug_1)
         feature_2, out_2 = net(aug_2)
 
