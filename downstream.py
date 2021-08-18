@@ -111,9 +111,15 @@ if __name__ == '__main__':
     model = Net(len(train_data.classes), "")
     model.to(device)
 
+
     # Fix the feature extractor
-    for param in model.extractor.parameters():
-        param.requires_grad = False
+    for name, param in model.named_parameters():
+        if not name.startswith('g'):
+            param.requires_grad = False
+    # init the fc layer
+    getattr(model, 'g')[0].weight.data.normal_(0, 0.01)
+    getattr(model, 'g')[3].weight.data.normal_(0, 0.01)
+    getattr(model, 'g')[3].bias.data.zero_()
 
 
     optimizer = optim.SGD(model.parameters(), lr = 0.05, momentum = 0.999, weight_decay = 1e-4)
